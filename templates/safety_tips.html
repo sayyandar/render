@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety Tips - SecureScan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>SecureScan</span>
+            </div>
+            
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="nav-links" id="navLinks">
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="{{ url_for('how_it_works') }}">How It Works</a>
+                <a href="{{ url_for('phishing_examples') }}">Phishing Examples</a>
+                <a href="{{ url_for('safety_tips') }}" class="active">Safety Tips</a>
+                <a href="{{ url_for('about') }}">About</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Online Safety Tips</h1>
+        <p class="subtitle">Protect yourself from phishing and online threats</p>
+
+        <div class="tips-container">
+            <div class="tip-card">
+                <div class="tip-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="tip-content">
+                    <h3>1. Always Check URLs</h3>
+                    <ul>
+                        <li>Hover over links before clicking</li>
+                        <li>Look for HTTPS in the address bar</li>
+                        <li>Verify domain names carefully</li>
+                        <li>Check for misspellings or odd characters</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card">
+                <div class="tip-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="tip-content">
+                    <h3>2. Email Safety</h3>
+                    <ul>
+                        <li>Never click links in unsolicited emails</li>
+                        <li>Check sender email addresses carefully</li>
+                        <li>Be wary of urgent or threatening language</li>
+                        <li>Look for poor grammar or spelling errors</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card">
+                <div class="tip-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div class="tip-content">
+                    <h3>3. Password Security</h3>
+                    <ul>
+                        <li>Use unique passwords for each account</li>
+                        <li>Enable two-factor authentication</li>
+                        <li>Use a password manager</li>
+                        <li>Never share passwords via email or text</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card">
+                <div class="tip-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="tip-content">
+                    <h3>4. Software Protection</h3>
+                    <ul>
+                        <li>Keep all software updated</li>
+                        <li>Use reputable antivirus software</li>
+                        <li>Enable firewalls</li>
+                        <li>Regularly back up important data</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card">
+                <div class="tip-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="tip-content">
+                    <h3>5. Personal Information</h3>
+                    <ul>
+                        <li>Never share personal info via email</li>
+                        <li>Verify requests through official channels</li>
+                        <li>Monitor financial statements regularly</li>
+                        <li>Use credit monitoring services</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card">
+                <div class="tip-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <div class="tip-content">
+                    <h3>6. Mobile Security</h3>
+                    <ul>
+                        <li>Only download apps from official stores</li>
+                        <li>Check app permissions carefully</li>
+                        <li>Use secure Wi-Fi networks</li>
+                        <li>Enable remote wipe capabilities</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="emergency-section">
+            <div class="emergency-header">
+                <i class="fas fa-exclamation-circle"></i>
+                <h2>If You Suspect Phishing</h2>
+            </div>
+            <div class="emergency-steps">
+                <div class="emergency-step">
+                    <span class="step-number">1</span>
+                    <p><strong>DO NOT</strong> click any links or download attachments</p>
+                </div>
+                <div class="emergency-step">
+                    <span class="step-number">2</span>
+                    <p><strong>DO NOT</strong> provide any personal information</p>
+                </div>
+                <div class="emergency-step">
+                    <span class="step-number">3</span>
+                    <p>Report the incident to your IT department or service provider</p>
+                </div>
+                <div class="emergency-step">
+                    <span class="step-number">4</span>
+                    <p>Change passwords if you suspect compromise</p>
+                </div>
+                <div class="emergency-step">
+                    <span class="step-number">5</span>
+                    <p>Monitor your accounts for suspicious activity</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tools-section">
+            <h2>Additional Security Tools</h2>
+            <div class="tools-list">
+                <div class="tool-item">
+                    <i class="fas fa-tools"></i>
+                    <span>Use our phishing detector for suspicious links</span>
+                </div>
+                <div class="tool-item">
+                    <i class="fas fa-book"></i>
+                    <span>Stay informed about latest phishing techniques</span>
+                </div>
+                <div class="tool-item">
+                    <i class="fas fa-users"></i>
+                    <span>Educate family and colleagues about phishing risks</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="foot">
+        <p>© 2024 SecureScan. This tool helps detect potential phishing URLs.</p>
+        <p style="font-size: 0.8rem; margin-top: 5px; color: #888;">
+            Always verify URLs and use additional security measures.
+        </p>
+    </footer>
+
+    <script>
+        // Mobile Menu Toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+        
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            const icon = menuToggle.querySelector('i');
+            if (navLinks.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+        
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                const icon = menuToggle.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            });
+        });
+        
+        document.addEventListener('click', (event) => {
+            if (!navLinks.contains(event.target) && !menuToggle.contains(event.target)) {
+                navLinks.classList.remove('active');
+                const icon = menuToggle.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+    </script>
+</body>
+</html>

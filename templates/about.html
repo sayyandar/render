@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - SecureScan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>SecureScan</span>
+            </div>
+            
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="nav-links" id="navLinks">
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="{{ url_for('how_it_works') }}">How It Works</a>
+                <a href="{{ url_for('phishing_examples') }}">Phishing Examples</a>
+                <a href="{{ url_for('safety_tips') }}">Safety Tips</a>
+                <a href="{{ url_for('about') }}" class="active">About</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>About SecureScan</h1>
+        <p class="subtitle">Making the internet safer, one URL at a time</p>
+
+        <div class="about-section">
+            <div class="mission-statement">
+                <h2>Our Mission</h2>
+                <p>SecureScan was created with a simple goal: to provide everyone with free, accessible tools to protect themselves from online phishing attacks. In today's digital world, phishing has become one of the most common and dangerous cyber threats, affecting millions of users worldwide.</p>
+                <p>We believe that cybersecurity should be accessible to everyone, not just large corporations with dedicated IT departments. Our tool empowers individuals and small businesses to take control of their online safety.</p>
+            </div>
+
+            <div class="technology-section">
+                <h2>Our Technology</h2>
+                <div class="tech-features">
+                    <div class="tech-feature">
+                        <i class="fas fa-brain"></i>
+                        <h3>AI-Powered Detection</h3>
+                        <p>Using advanced neural networks trained on thousands of legitimate and phishing URLs</p>
+                    </div>
+                    <div class="tech-feature">
+                        <i class="fas fa-bolt"></i>
+                        <h3>Real-Time Analysis</h3>
+                        <p>Instant results with detailed confidence scores and safety recommendations</p>
+                    </div>
+                    <div class="tech-feature">
+                        <i class="fas fa-user-shield"></i>
+                        <h3>Privacy First</h3>
+                        <p>We don't store or log the URLs you analyze. Your privacy is our priority</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-values">
+                <h2>Our Values</h2>
+                <div class="values-grid">
+                    <div class="value-item">
+                        <h3><i class="fas fa-universal-access"></i> Accessibility</h3>
+                        <p>Free tools available to everyone, regardless of technical expertise</p>
+                    </div>
+                    <div class="value-item">
+                        <h3><i class="fas fa-graduation-cap"></i> Education</h3>
+                        <p>Providing resources to help users understand and recognize threats</p>
+                    </div>
+                    <div class="value-item">
+                        <h3><i class="fas fa-sync-alt"></i> Continuous Improvement</h3>
+                        <p>Regular updates to stay ahead of evolving phishing techniques</p>
+                    </div>
+                    <div class="value-item">
+                        <h3><i class="fas fa-handshake"></i> Transparency</h3>
+                        <p>Clear explanations of how our detection works and what it can do</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-section">
+                <h2>By The Numbers</h2>
+                <div class="stats-grid">
+                    <div class="stat">
+                        <div class="stat-number">96%</div>
+                        <div class="stat-label">Detection Accuracy</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">100K+</div>
+                        <div class="stat-label">URLs Analyzed</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">&lt;2s</div>
+                        <div class="stat-label">Average Analysis Time</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Free Service</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-section">
+                <h2>Get In Touch</h2>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>For support: Sayyandar47@gmail.com</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-code"></i>
+                        <span>API access available for developers</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-heart"></i>
+                        <span>This is an open-source project</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cta-final">
+                <h2>Ready to Stay Safe Online?</h2>
+                <p>Start using our phishing detector today - it's free, fast, and privacy-focused</p>
+                <a href="{{ url_for('home') }}" class="cta-button">
+                    <i class="fas fa-shield-alt"></i> Start Scanning URLs
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="foot">
+        <p>© 2024 SecureScan. This tool helps detect potential phishing URLs.</p>
+        <p style="font-size: 0.8rem; margin-top: 5px; color: #888;">
+            Always verify URLs and use additional security measures.
+        </p>
+    </footer>
+
+    <script>
+        // Mobile Menu Toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+        
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            const icon = menuToggle.querySelector('i');
+            if (navLinks.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+        
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                const icon = menuToggle.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            });
+        });
+        
+        document.addEventListener('click', (event) => {
+            if (!navLinks.contains(event.target) && !menuToggle.contains(event.target)) {
+                navLinks.classList.remove('active');
+                const icon = menuToggle.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing URL Detector</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <!-- Header & Navbar -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>SecureScan</span>
+            </div>
+            
+            <!-- Menu Toggle Button (Visible only on mobile) -->
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <!-- Navigation Links -->
+            <div class="nav-links" id="navLinks">
+                <a href="{{ url_for('home') }}" class="active">Home</a>
+                <a href="{{ url_for('how_it_works') }}">How It Works</a>
+                <a href="{{ url_for('phishing_examples') }}">Phishing Examples</a>
+                <a href="{{ url_for('safety_tips') }}">Safety Tips</a>
+                <a href="{{ url_for('about') }}">About</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Phishing URL Detector</h1>
+        <p>Enter a URL below to check if it's potentially phishing:</p>
+
+        <div class="form-group">
+            <input type="text" id="urlInput" placeholder="https://example.com" value="https://">
+        </div>
+
+        <button onclick="checkURL()">Check URL</button>
+
+        <div class="loading" id="loading">
+            <p>Analyzing URL...</p>
+        </div>
+
+        <div class="result" id="result">
+            <h3 id="resultTitle"></h3>
+            <p><strong>URL:</strong> <span id="resultUrl"></span></p>
+            <p><strong>Status:</strong> <span id="resultStatus"></span></p>
+            <p><strong>Phishing Probability:</strong> <span id="resultProbability"></span></p>
+            <p><strong>Safe Probability:</strong> <span id="resultSafeProbability"></span></p>
+        </div>
+    </div>
+
+    <footer class="foot">
+        <p>© 2024 SecureScan. This tool helps detect potential phishing URLs.</p>
+        <p style="font-size: 0.8rem; margin-top: 5px; color: #888;">
+            Always verify URLs and use additional security measures.
+        </p>
+    </footer>
+
+    <script>
+        // Mobile Menu Toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+        
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            
+            // Change icon based on menu state
+            const icon = menuToggle.querySelector('i');
+            if (navLinks.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+        
+        // Close menu when clicking on a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                const icon = menuToggle.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            });
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!navLinks.contains(event.target) && !menuToggle.contains(event.target)) {
+                navLinks.classList.remove('active');
+                const icon = menuToggle.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        async function checkURL() {
+            const url = document.getElementById('urlInput').value;
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+
+            // Show loading
+            loading.style.display = 'block';
+            result.style.display = 'none';
+
+            try {
+                const formData = new FormData();
+                formData.append('url', url);
+
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                // Hide loading
+                loading.style.display = 'none';
+
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+
+                // Display results
+                document.getElementById('resultUrl').textContent = data.url;
+                document.getElementById('resultProbability').textContent = data.confidence;
+                document.getElementById('resultSafeProbability').textContent = data.safe_probability;
+
+                if (data.is_phishing) {
+                    document.getElementById('resultTitle').textContent = 'POTENTIAL PHISHING SITE DETECTED';
+                    document.getElementById('resultStatus').textContent = 'PHISHING - Be cautious!';
+                    result.className = 'result phishing';
+                } else {
+                    document.getElementById('resultTitle').textContent = 'SAFE SITE DETECTED';
+                    document.getElementById('resultStatus').textContent = 'SAFE - Appears legitimate';
+                    result.className = 'result safe';
+                }
+
+                result.style.display = 'block';
+
+            } catch (error) {
+                loading.style.display = 'none';
+                alert('Error checking URL: ' + error.message);
+            }
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('urlInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                checkURL();
+            }
+        });
+    </script>
+</body>
+</html>

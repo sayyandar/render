@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How It Works - Phishing URL Detector</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>SecureScan</span>
+            </div>
+            
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="nav-links" id="navLinks">
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="{{ url_for('how_it_works') }}" class="active">How It Works</a>
+                <a href="{{ url_for('phishing_examples') }}">Phishing Examples</a>
+                <a href="{{ url_for('safety_tips') }}">Safety Tips</a>
+                <a href="{{ url_for('about') }}">About</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>How Our Phishing Detector Works</h1>
+        <p class="subtitle">Understanding the technology behind our AI-powered URL analysis</p>
+
+        <div class="content-section">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>URL Feature Extraction</h3>
+                    <p>Our system analyzes the URL structure and extracts 19 different features including:</p>
+                    <ul>
+                        <li>URL length and character counts</li>
+                        <li>Special character frequency (dots, hyphens, slashes, etc.)</li>
+                        <li>Presence of suspicious patterns</li>
+                        <li>Redirection attempts detection</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Machine Learning Analysis</h3>
+                    <p>We use a trained neural network model that:</p>
+                    <ul>
+                        <li>Processes extracted features through multiple layers</li>
+                        <li>Compares patterns against known phishing characteristics</li>
+                        <li>Learns from thousands of legitimate and malicious URLs</li>
+                        <li>Continuously improves with new data</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Real-time Risk Assessment</h3>
+                    <p>The system provides instant results:</p>
+                    <ul>
+                        <li>Phishing probability score (0-100%)</li>
+                        <li>Clear safety classification</li>
+                        <li>Detailed confidence metrics</li>
+                        <li>Real-time analysis (typically under 2 seconds)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Security Features</h3>
+                    <p>Our detection system includes:</p>
+                    <ul>
+                        <li>No data storage of analyzed URLs</li>
+                        <li>Privacy-focused design</li>
+                        <li>Regular model updates</li>
+                        <li>API access for developers</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2>Try It Yourself</h2>
+            <p>Ready to test our phishing detector?</p>
+            <a href="{{ url_for('home') }}" class="cta-button">
+                <i class="fas fa-search"></i> Check a URL Now
+            </a>
+        </div>
+    </div>
+
+    <footer class="foot">
+        <p>© 2024 SecureScan. This tool helps detect potential phishing URLs.</p>
+        <p style="font-size: 0.8rem; margin-top: 5px; color: #888;">
+            Always verify URLs and use additional security measures.
+        </p>
+    </footer>
+
+    <script>
+        // Mobile Menu Toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+        
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            const icon = menuToggle.querySelector('i');
+            if (navLinks.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+        
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                const icon = menuToggle.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            });
+        });
+        
+        document.addEventListener('click', (event) => {
+            if (!navLinks.contains(event.target) && !menuToggle.contains(event.target)) {
+                navLinks.classList.remove('active');
+                const icon = menuToggle.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+    </script>
+</body>
+</html>
