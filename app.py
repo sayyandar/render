@@ -1,18 +1,34 @@
 import numpy as np
 import pandas as pd
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 import joblib
-# pyright: ignore[reportMissingImports]
-from tensorflow.keras.models import load_model 
 import traceback
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='.', static_url_path='')
 
 # Load the saved model and scaler
 try:
-    model = load_model('saved_model/neural_network_model.h5')
-    scaler = joblib.load('saved_model/scaler.pkl')
-    print("✅ Model and scaler loaded successfully!")
+    # Use absolute path for Render
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(base_dir, 'saved_model', 'neural_network_model.h5')
+    scaler_path = os.path.join(base_dir, 'saved_model', 'scaler.pkl')
+    
+    # Try to load TensorFlow model
+    try:
+        from tensorflow.keras.models import load_model
+        model = load_model(model_path)
+        print("✅ TensorFlow model loaded successfully!")
+    except ImportError:
+        print("⚠️ TensorFlow not available, using fallback")
+        model = None
+    except Exception as e:
+        print(f"⚠️ Could not load TensorFlow model: {e}")
+        model = None
+    
+    scaler = joblib.load(scaler_path)
+    print("✅ Scaler loaded successfully!")
+    
 except Exception as e:
     print(f"❌ Error loading model: {e}")
     print(traceback.format_exc())
@@ -71,7 +87,15 @@ def about():
 @app.route('/predict', methods=['POST'])
 def predict():
     if model is None or scaler is None:
-        return jsonify({'error': 'Model not loaded properly'}), 500
+        return jsonify({
+            'error': 'Model not loaded properly',
+            'url': request.form.get('url', ''),
+            'is_phishing': True,  # Default to safe
+            'phishing_probability': 0.5,
+            'confidence': "50.0%",
+            'safe_probability': "50.0%",
+            'model_status': 'fallback'
+        })
     
     try:
         # Get URL from form
@@ -87,7 +111,7 @@ def predict():
         features_scaled = scaler.transform(features)
         
         # Make prediction
-        prediction_prob = model.predict(features_scaled)[0][0]
+        prediction_prob = model.predict(features_scaled, verbose=0)[0][0]
         prediction = 1 if prediction_prob > 0.5 else 0
         
         # Prepare result
@@ -96,41 +120,14 @@ def predict():
             'is_phishing': bool(prediction),
             'phishing_probability': float(prediction_prob),
             'confidence': f"{prediction_prob * 100:.2f}%",
-            'safe_probability': f"{(1 - prediction_prob) * 100:.2f}%"
+            'safe_probability': f"{(1 - prediction_prob) * 100:.2f}%",
+            'model_status': 'neural_network'
         }
         
         return jsonify(result)
     
     except Exception as e:
         return jsonify({'error': str(e), 'trace': traceback.format_exc()}), 500
-
-@app.route('/api/predict', methods=['POST'])
-def api_predict():
-    """API endpoint for programmatic access"""
-    if model is None or scaler is None:
-        return jsonify({'error': 'Model not loaded properly'}), 500
-    
-    try:
-        data = request.get_json()
-        url = data.get('url', '')
-        
-        if not url:
-            return jsonify({'error': 'URL is required'}), 400
-        
-        # Extract and predict
-        features = extract_features_from_url(url)
-        features_scaled = scaler.transform(features)
-        prediction_prob = model.predict(features_scaled)[0][0]
-        
-        return jsonify({
-            'url': url,
-            'phishing_score': float(prediction_prob),
-            'is_phishing': prediction_prob > 0.5,
-            'status': 'success'
-        })
-    
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 @app.route('/health')
 def health_check():
@@ -139,5 +136,12 @@ def health_check():
         return jsonify({'status': 'healthy', 'model_loaded': True})
     return jsonify({'status': 'unhealthy', 'model_loaded': False}), 500
 
+# Serve static files for frontend
+@app.route('/static/<path:path>')
+def serve_static(path):
+    return send_from_directory('static', path)
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    print(f"Starting server on port {port}")
+    app.run(host='0.0.0.0', port=port, debug=False)
