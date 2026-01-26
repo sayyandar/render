@@ -5,7 +5,8 @@ import joblib
 import traceback
 import os
 
-app = Flask(__name__, static_folder='.', static_url_path='')
+# Remove static_folder='.' - this is wrong!
+app = Flask(__name__)  # Let Flask use default 'static' folder
 
 # Load the saved model and scaler
 try:
@@ -136,10 +137,10 @@ def health_check():
         return jsonify({'status': 'healthy', 'model_loaded': True})
     return jsonify({'status': 'unhealthy', 'model_loaded': False}), 500
 
-# Serve static files for frontend
-@app.route('/static/<path:path>')
-def serve_static(path):
-    return send_from_directory('static', path)
+# Optional: Serve favicon
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory('static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
