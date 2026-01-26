@@ -5,45 +5,72 @@ import joblib
 import traceback
 import os
 
-# Remove static_folder='.' - this is wrong!
-app = Flask(__name__)  # Let Flask use default 'static' folder
+app = Flask(__name__)
 
-# Load the saved model and scaler
-try:
-    # Use absolute path for Render
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(base_dir, 'saved_model', 'neural_network_model.h5')
-    scaler_path = os.path.join(base_dir, 'saved_model', 'scaler.pkl')
-    
-    # Try to load TensorFlow model
-    try:
-        from tensorflow.keras.models import load_model
-        model = load_model(model_path)
-        print("✅ TensorFlow model loaded successfully!")
-    except ImportError:
-        print("⚠️ TensorFlow not available, using fallback")
-        model = None
-    except Exception as e:
-        print(f"⚠️ Could not load TensorFlow model: {e}")
-        model = None
-    
-    scaler = joblib.load(scaler_path)
-    print("✅ Scaler loaded successfully!")
-    
-except Exception as e:
-    print(f"❌ Error loading model: {e}")
-    print(traceback.format_exc())
+# Try multiple loading strategies for maximum compatibility
+def load_model_with_fallback():
+    """Try loading model in different formats"""
     model = None
     scaler = None
+    
+    # Try loading scaler first
+    try:
+        scaler = joblib.load('saved_model/scaler.pkl')
+        print("✅ Scaler loaded successfully")
+    except Exception as e:
+        print(f"❌ Error loading scaler: {e}")
+        scaler = None
+    
+    # Try different model formats in order of preference
+    model_formats = [
+        ('saved_model/neural_network_model.keras', 'Keras .keras format'),
+        ('saved_model/neural_network_model.h5', 'Keras .h5 format'),
+        ('saved_model/lightweight_model.keras', 'Lightweight model'),
+    ]
+    
+    for model_path, format_name in model_formats:
+        try:
+            if os.path.exists(model_path):
+                from tensorflow import keras
+                model = keras.models.load_model(model_path)
+                print(f"✅ Model loaded from {format_name}")
+                break
+            else:
+                print(f"⚠️  Model file not found: {model_path}")
+        except Exception as e:
+            print(f"❌ Failed to load {format_name}: {e}")
+    
+    # Fallback: Load from JSON + weights
+    if model is None:
+        try:
+            from tensorflow import keras
+            with open('saved_model/model_architecture.json', 'r') as f:
+                model_arch = f.read()
+            model = keras.models.model_from_json(model_arch)
+            model.load_weights('saved_model/model_weights.h5')
+            print("✅ Model loaded from JSON + weights")
+        except Exception as e:
+            print(f"❌ Failed to load from JSON + weights: {e}")
+    
+    return model, scaler
 
-# Feature names (should match your training data)
-FEATURE_NAMES = [
-    'url_length', 'n_dots', 'n_hyphens', 'n_underline', 'n_slash', 
-    'n_question', 'n_equal', 'n_at', 'n_and', 'n_exclamation', 
-    'n_space', 'n_tilde', 'n_comma', 'n_plus', 'n_asterisk', 
-    'n_hashtag', 'n_dollar', 'n_percent', 'n_redirection'
-]
+# Load model and scaler at startup
+print("=" * 60)
+print("🚀 Starting Phishing URL Detector")
+print("=" * 60)
 
+model, scaler = load_model_with_fallback()
+
+if model is None:
+    print("❌ CRITICAL: Could not load any model format!")
+    print("Please run fix_model_compatibility.py first")
+if scaler is None:
+    print("⚠️  WARNING: Could not load scaler")
+    print("Predictions may not be accurate")
+
+print("=" * 60)
+
+# Feature extraction function (keep as is)
 def extract_features_from_url(url):
     """Extract 19 features from a URL"""
     features = []
@@ -88,15 +115,7 @@ def about():
 @app.route('/predict', methods=['POST'])
 def predict():
     if model is None or scaler is None:
-        return jsonify({
-            'error': 'Model not loaded properly',
-            'url': request.form.get('url', ''),
-            'is_phishing': True,  # Default to safe
-            'phishing_probability': 0.5,
-            'confidence': "50.0%",
-            'safe_probability': "50.0%",
-            'model_status': 'fallback'
-        })
+        return jsonify({'error': 'Model not loaded properly'}), 500
     
     try:
         # Get URL from form
@@ -121,8 +140,7 @@ def predict():
             'is_phishing': bool(prediction),
             'phishing_probability': float(prediction_prob),
             'confidence': f"{prediction_prob * 100:.2f}%",
-            'safe_probability': f"{(1 - prediction_prob) * 100:.2f}%",
-            'model_status': 'neural_network'
+            'safe_probability': f"{(1 - prediction_prob) * 100:.2f}%"
         }
         
         return jsonify(result)
@@ -130,19 +148,94 @@ def predict():
     except Exception as e:
         return jsonify({'error': str(e), 'trace': traceback.format_exc()}), 500
 
+@app.route('/api/predict', methods=['POST'])
+def api_predict():
+    """API endpoint for programmatic access"""
+    if model is None or scaler is None:
+        return jsonify({'error': 'Model not loaded properly'}), 500
+    
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data provided'}), 400
+        
+        url = data.get('url', '').strip()
+        
+        if not url:
+            return jsonify({'error': 'URL is required'}), 400
+        
+        # Extract and predict
+        features = extract_features_from_url(url)
+        features_scaled = scaler.transform(features)
+        prediction_prob = model.predict(features_scaled, verbose=0)[0][0]
+        
+        return jsonify({
+            'url': url,
+            'phishing_score': float(prediction_prob),
+            'is_phishing': prediction_prob > 0.5,
+            'confidence': f"{prediction_prob * 100:.2f}%",
+            'status': 'success'
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/health')
 def health_check():
     """Health check endpoint"""
     if model and scaler:
-        return jsonify({'status': 'healthy', 'model_loaded': True})
-    return jsonify({'status': 'unhealthy', 'model_loaded': False}), 500
+        return jsonify({
+            'status': 'healthy', 
+            'model_loaded': True,
+            'scaler_loaded': True
+        })
+    return jsonify({
+        'status': 'unhealthy', 
+        'model_loaded': model is not None,
+        'scaler_loaded': scaler is not None
+    }), 500
 
-# Optional: Serve favicon
+@app.route('/model-info')
+def model_info():
+    """Get model information endpoint"""
+    if model is None:
+        return jsonify({'error': 'Model not loaded'}), 500
+    
+    try:
+        model_type = type(model).__name__
+        
+        if hasattr(model, 'input_shape'):
+            info = {
+                'model_type': model_type,
+                'input_shape': model.input_shape,
+                'output_shape': model.output_shape,
+                'layers': len(model.layers),
+                'status': 'loaded'
+            }
+        else:
+            info = {
+                'model_type': model_type,
+                'status': 'loaded'
+            }
+        
+        return jsonify(info)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory('static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+@app.route('/robots.txt')
+def robots():
+    return send_from_directory('static', 'robots.txt')
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    
     print(f"Starting server on port {port}")
-    app.run(host='0.0.0.0', port=port, debug=False)
+    print(f"Debug mode: {debug}")
+    
+    # For production, use 0.0.0.0 to accept connections from all IPs
+    app.run(host='0.0.0.0', port=port, debug=debug)
