@@ -176,6 +176,7 @@
  }
 
  .result p {
+     overflow: hidden;
      text-align: left;
      margin-bottom: 15px;
      color: inherit;
